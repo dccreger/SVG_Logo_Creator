@@ -30,28 +30,20 @@ const questions = [
   },
 ];
 
+function renderSVG(textSVG, shapeSVG) {
+  return `<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+    ${textSVG} ${shapeSVG} </svg>`;
+}
+
 function generateSVG(data) {
   const { text, shape, textColor, shapeColor } = data;
 
-  let svgMarkup = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">`;
+  const shapeInstance = new Shape(shape, shapeColor);
+  const shapeSVG = shapeInstance.generateSVG();
 
-  switch (shape.toLowerCase()) {
-    case "circle":
-      svgMarkup += `<circle cx="50" cy="50" r="40" fill="${shapeColor}" />`;
-      break;
-    case "rectangle":
-      svgMarkup += `<rect x="10" y="10" width="80" height="80" fill="${shapeColor}" />`;
-      break;
-    case "triangle":
-      svgMarkup += `<polygon points="50,10 90,90 10,90" fill="${shapeColor}" />`;
-      break;
-    case "square":
-      svgMarkup += `<rect x="10" y="10" width="80" height="80" fill="${shapeColor}" />`;
-      break;
-  }
-  svgMarkup += `</svg>`;
-
-  return svgMarkup;
+  const textInstance = new Text(text, textColor);
+  const textSVG = textInstance.generateSVG();
+  return renderSVG(textSVG, shapeSVG);
 }
 
 function writeToFile(fileName, userInput) {
