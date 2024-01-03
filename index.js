@@ -1,5 +1,6 @@
-const Texts = require("./lib/text.js");
-const Shapes = require("./lib/shapes.js");
+const Triangle = require("./lib/triangle.js");
+const Circle = require("./lib/circle.js");
+const Square = require("./lib/square.js");
 const fs = require("fs");
 const inquirer = require("inquirer");
 
@@ -19,8 +20,8 @@ const questions = [
   {
     type: "list",
     message: "What text shape would you like added to your logo?",
-    choices: ["Circle", "Rectangle", "Triangle", "Square"],
-    name: "shape",
+    choices: ["Circle", "Triangle", "Square"],
+    name: "shapeType",
   },
   {
     type: "input",
@@ -30,35 +31,38 @@ const questions = [
   },
 ];
 
-function renderSVG(textSVG, shapeSVG) {
-  return `<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
-    ${textSVG} ${shapeSVG} </svg>`;
-}
-
-function generateSVG(data) {
-  const { text, shape, textColor, shapeColor } = data;
-
-  const shapeInstance = new Shape(shape, shapeColor);
-  const shapeSVG = shapeInstance.generateSVG();
-
-  const textInstance = new Text(text, textColor);
-  const textSVG = textInstance.generateSVG();
-  return renderSVG(textSVG, shapeSVG);
-}
-
-function writeToFile(fileName, userInput) {
-  fs.writeFile("logo.svg", userInput, "utf8", function (err, data) {
+function writeToFile(fileType, userInput) {
+  const svgContent = `<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">${userInput}</svg>`;
+  fs.writeFile("logo.svg", svgContent, function (err, data) {
     err
       ? console.error("Error has taken place", err)
       : console.log("Logo Created");
   });
-  function init() {
-    inquirer.prompt(questions).then(function (data) {
-      const userInput = generateSVG(data);
-      writeToFile("logo.svg", userInput);
-    });
-  }
-
-  // Function call to initialize app
-  init();
 }
+function createShape(shapeType) {
+  switch (shapeType.toLowerCase()) {
+    case "triangle":
+      return new Triangle();
+    case "circle":
+      return new Circle();
+    case "square":
+      return new Square();
+  }
+}
+
+function init() {
+  inquirer.prompt(questions).then(function (data) {
+    const shapeType = data.shapeType;
+    const shape = createShape(shapeType);
+    shape.setText(data.text);
+    shape.setTextColor(data.textColor);
+    shape.setColor(data.shapeColor);
+
+    const svgContent = shape.render();
+    console.log(svgContent);
+    writeToFile("logo.svg", svgContent);
+  });
+}
+
+// Function call to initialize app
+init();
